@@ -48,6 +48,19 @@ Measured for a 16px monospace font (JetBrains Mono). Re-measure for other fonts 
 - A complete bipartite fan (e.g. three sources each linked to the same three targets, K3,3) cannot be drawn without a crossing. Put one source at the side, in the target row, to get down to one crossing.
 - Moving a node by 20px can change routing a lot. When an edge takes a detour, try two or three nearby positions and keep the best render.
 
+## ID rules
+
+1. Every node and container ID is meaningful camelCase that names the thing: `replicationSource`, `backupStorage`. Never cryptic IDs like `rs`, `rS`, `a`, `b` or `n1`.
+2. Use full words by default. Shorten a word only when the ID gets long and the short form is common and unambiguous (`repl`, `src`, `dst`, `ns`, `db`, `config`), e.g. `replSource`.
+3. Every node and container sets an explicit label, so the ID never shows up in the picture:
+
+   ```d2
+   replSource: "ReplicationSource" {
+     top: 0
+     left: 0
+   }
+   ```
+
 ## Edge rules
 
 1. Every edge has a label, even when several parallel edges repeat the same verb.
@@ -55,9 +68,9 @@ Measured for a 16px monospace font (JetBrains Mono). Re-measure for other fonts 
 3. A reference that is not a flow (a spec field pointing at another object, "references", "refers to") is undirected and dashed:
 
    ```d2
-   a -- b: {
+   restore -- backup: {
      style.stroke-dash: 4
-     source-arrowhead.label: references
+     source-arrowhead.label: "references"
    }
    ```
 
@@ -69,12 +82,15 @@ Measured for a 16px monospace font (JetBrains Mono). Re-measure for other fonts 
 2. Every container sets `style.font-size: 24`. Nodes keep the default size.
 3. Container labels are the plain text. No `\n(...)` subtitle when a short name says it.
 4. Placeholder Kubernetes namespaces (made up for the picture, like "your namespace" or "data") use a `my-` prefix: `my-restore-namespace`, `my-app-namespace`, `my-backup-namespace`. Keep the name when the surrounding text or its commands create or use that namespace (e.g. a walkthrough that runs `kubectl create namespace wordpress`), system namespaces (e.g. `velero`) and generated names (e.g. `bret-scratch-<hash>`). If you rename a placeholder, update the prose that names it.
-5. Fix typos.
+5. Every label is double quoted: node, container, edge and arrowhead labels alike, e.g. `replSource -> backupStorage: "uploads to"` and `source-arrowhead.label: "references"`.
+6. Fix typos.
 
 ## Cleanup when migrating
 
 - Remove `direction`, `grid-*`, redundant `layout=` fence attributes and empty lines inside blocks.
 - Remove leading or trailing spaces inside labels.
+- Rename cryptic IDs (`rs`, `a`, `n1`) to meaningful ones and update every edge and reference to them in the block. Add the explicit quoted label if it was missing.
+- Double quote every bare label.
 - Keep one style: properties of a block in the order shape, label-related style, `top`, `left`, `width`, `height`, then children, then edges.
 
 ## Workflow
