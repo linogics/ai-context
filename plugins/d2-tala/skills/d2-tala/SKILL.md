@@ -5,54 +5,52 @@ description: Write, migrate or review d2 diagrams for TALA. Pins `top`/`left` on
 
 # d2 diagrams on TALA
 
-Two jobs, same rules:
+- **Author**: write a new diagram by these rules.
+- **Migrate**: rewrite an auto-layout (elk, dagre, plain tala) diagram so every object is pinned.
 
-- **Author**: write a new diagram that follows the rules below.
-- **Migrate**: rewrite an existing auto-layout (elk, dagre, plain tala) diagram so every object is pinned.
-
-Keep the meaning of the diagram. Never drop a node, an edge or a label word unless it is a typo or a rule below says so.
+Keep the meaning. Never drop a node, edge or label word unless it is a typo or a rule says so.
 
 ## Scope
 
-- `shape: sequence_diagram` blocks are exempt from positioning. Only apply the text and edge rules to them.
-- Layout engine is TALA. If the site config (e.g. `astro-d2` `layout: 'tala'`) already sets it, do not add `layout=tala` to the code fence.
+- `shape: sequence_diagram` blocks get no positions, only the text and edge rules.
+- If the site config already sets TALA (e.g. `astro-d2` `layout: 'tala'`), add no `layout=tala` to the fence.
 
-## Layout rules
+## Layout
 
-1. Every node and every container gets `top` and `left`. No `grid-columns`, `grid-rows`, `grid-gap` or `direction`. Remove them when migrating.
+1. Every node and container gets `top` and `left`. No `grid-columns`, `grid-rows`, `grid-gap` or `direction`.
 2. Every `top`, `left`, `width` and `height` is a multiple of 20.
-3. Children of a container are positioned relative to the container. The first row starts at `top: 0`, the first column at `left: 0`.
-4. TALA adds 60px padding on every side of a container. Do not fight it. A container's outer size is the children's bounding box plus 120 in each axis (title included).
-5. Spacing between siblings:
+3. Children sit relative to their container. First row at `top: 0`, first column at `left: 0`.
+4. TALA pads containers by 60 on every side. Don't fight it. Outer size = children's bounding box + 120 per axis (title included).
+5. Gaps between siblings:
    - 40 between boxes in a row with no edge between them.
-   - 60 between rows that an edge crosses. Render, and if anything collides there (label on a node or border, label on label, squeezed arrowhead, bent edge), raise that gap by 20 and render again. Repeat until clean. Raise each gap on its own, not all at once.
-   - A horizontal edge with a label gets a gap of at least the label width plus 40.
-6. Boxes in the same row share one `height`. Boxes in the same column share one `width`. Size boxes with the formulas below, then take the max per row or column.
-7. Straight edges: put connected nodes on one center line. Same center x for vertical edges, same center y for horizontal ones. With equal widths that means equal `left`. A fan-out (one node to many) may bend, but center the single node over the fan.
-8. Place containers the same way as nodes, using their outer size from rule 4.
+   - 60 between rows an edge crosses. On a collision there (label on node, border or label, squeezed arrowhead, bent edge), raise that one gap by 20 and render again until clean.
+   - A horizontal labeled edge gets at least label width + 40.
+6. Size boxes with the formulas below, then take the max per row (shared `height`) and per column (shared `width`).
+7. Straight edges: connected nodes share a center line (x for vertical, y for horizontal edges). With equal widths that means equal `left`. A fan-out (one node to many) may bend, but center the single node over the fan.
+8. Place containers like nodes, by their outer size.
 
-### Box size formulas
+### Box sizes
 
 Measured for a 16px monospace font (JetBrains Mono). Re-measure for other fonts by rendering a known label.
 
 - width = round up to 20 of `9.6 × longest line in chars + 44`
 - height = round up to 20 of `51 + 16 × lines`. Gives 80 for 1 line, 100 for 2 or 3, 120 for 4.
-- Shapes need more room than their label, or TALA puts the label outside the shape:
-  - cylinder: height 140 for 1 or 2 lines, 160 for 3 lines.
-  - diamond: width about 1.6 × the label box. 300×120 for 1 line, 300×140 for 2 lines, 400×220 for 3 lines.
+- Shapes need more room, or TALA puts the label outside:
+  - cylinder: height 140 for 1 or 2 lines, 160 for 3
+  - diamond: width about 1.6 × the label box. 300×120 for 1 line, 300×140 for 2, 400×220 for 3
 
-### TALA behavior to plan for
+### TALA quirks
 
-- A diamond has four ports. If more edges enter than free sides exist, TALA draws diagonals. Group the sources into a container with one edge instead (e.g. `Triggers` with one `fires` edge).
-- When an edge crosses a container title, TALA moves the title (top-right, bottom, or outside). Accept that if it stays readable, or set `label.near: top-left` when the left side is free.
-- A complete bipartite fan (e.g. three sources each linked to the same three targets, K3,3) cannot be drawn without a crossing. Put one source at the side, in the target row, to get down to one crossing.
-- Moving a node by 20px can change routing a lot. When an edge takes a detour, try two or three nearby positions and keep the best render.
+- A diamond has four ports. More incoming edges than free sides give diagonals. Group the sources in a container with one edge (e.g. `Triggers` with one `fires` edge).
+- An edge crossing a container title moves the title (top-right, bottom or outside). Accept it if readable, or set `label.near: top-left` when the left side is free.
+- A full bipartite fan (K3,3: three sources each linked to the same three targets) always crosses. Put one source at the side in the target row to get one crossing.
+- A 20px move can change routing a lot. On a detour, try two or three nearby positions and keep the best render.
 
-## ID rules
+## IDs
 
-1. Every node and container ID is meaningful camelCase that names the thing: `replicationSource`, `backupStorage`. Never cryptic IDs like `rs`, `rS`, `a`, `b` or `n1`.
-2. Use full words by default. Shorten a word only when the ID gets long and the short form is common and unambiguous (`repl`, `src`, `dst`, `ns`, `db`, `config`), e.g. `replSource`.
-3. Every node and container sets an explicit label, so the ID never shows up in the picture:
+1. Meaningful camelCase that names the thing: `replicationSource`, `backupStorage`. Never cryptic IDs like `rs`, `rS`, `a`, `b` or `n1`.
+2. Full words by default. Shorten only long IDs, with common clear short forms (`repl`, `src`, `dst`, `ns`, `db`, `config`), e.g. `replSource`.
+3. Every node and container sets a label, so no ID shows in the picture:
 
    ```d2
    replSource: "ReplicationSource" {
@@ -61,11 +59,11 @@ Measured for a 16px monospace font (JetBrains Mono). Re-measure for other fonts 
    }
    ```
 
-## Edge rules
+## Edges
 
-1. Every edge has a label, even when several parallel edges repeat the same verb.
-2. The label sits mid-edge by default. Move it to `source-arrowhead.label` only when the mid-edge spot collides with a node or another label.
-3. A reference that is not a flow (a spec field pointing at another object, "references", "refers to") is undirected and dashed:
+1. Every edge has a label, even parallel edges with the same verb.
+2. Labels sit mid-edge. Use `source-arrowhead.label` only when mid-edge collides with a node or label.
+3. A reference that is not a flow (a spec field pointing at another object, "references", "refers to") is undirected and dashed. Nothing else is dashed, and shapes keep a solid border:
 
    ```d2
    restore -- backup: {
@@ -74,36 +72,33 @@ Measured for a 16px monospace font (JetBrains Mono). Re-measure for other fonts 
    }
    ```
 
-   Nothing else is dashed. Shapes always keep a solid border.
+## Text
 
-## Text rules
-
-1. Wrap any node or edge label longer than about 20 chars at a word break with `\n`. Never pad lines with spaces to center them.
-2. Every container sets `style.font-size: 24`. Nodes keep the default size.
-3. Container labels are the plain text. No `\n(...)` subtitle when a short name says it.
-4. Placeholder Kubernetes namespaces (made up for the picture, like "your namespace" or "data") use a `my-` prefix: `my-restore-namespace`, `my-app-namespace`, `my-backup-namespace`. Keep the name when the surrounding text or its commands create or use that namespace (e.g. a walkthrough that runs `kubectl create namespace wordpress`), system namespaces (e.g. `velero`) and generated names (e.g. `bret-scratch-<hash>`). If you rename a placeholder, update the prose that names it.
-5. Every label is double quoted: node, container, edge and arrowhead labels alike, e.g. `replSource -> backupStorage: "uploads to"` and `source-arrowhead.label: "references"`.
+1. Wrap node and edge labels over about 20 chars at a word break with `\n`. Never pad lines with spaces to center them.
+2. Containers set `style.font-size: 24`. Nodes keep the default.
+3. Container labels are plain text, no `\n(...)` subtitle when a short name says it.
+4. Double quote every label (node, container, edge, arrowhead): `replSource -> backupStorage: "uploads to"`.
+5. Placeholder Kubernetes namespaces (made up for the picture, like "your namespace" or "data") get a `my-` prefix: `my-restore-namespace`, `my-app-namespace`, `my-backup-namespace`. Keep names that the surrounding text or its commands create or use (e.g. `kubectl create namespace wordpress`), system namespaces (`velero`) and generated names (`bret-scratch-<hash>`). After a rename, update the prose too.
 6. Fix typos.
 
-## Cleanup when migrating
+## Migration cleanup
 
 - Remove `direction`, `grid-*`, redundant `layout=` fence attributes and empty lines inside blocks.
-- Remove leading or trailing spaces inside labels.
-- Rename cryptic IDs (`rs`, `a`, `n1`) to meaningful ones and update every edge and reference to them in the block. Add the explicit quoted label if it was missing.
-- Double quote every bare label.
-- Keep one style: properties of a block in the order shape, label-related style, `top`, `left`, `width`, `height`, then children, then edges.
+- Trim spaces at label ends.
+- Rename cryptic IDs and update every edge and reference to them in the block. Add missing quoted labels and quote bare ones.
+- Order block properties: shape, label style, `top`, `left`, `width`, `height`, children, edges.
 
 ## Workflow
 
-1. Read the diagram. List rows and columns, which nodes connect, and the longest line of each label.
-2. Compute sizes (formulas), then positions (layout rules). Write the block.
-3. Render with `scripts/render.py` and **look at every PNG** with the Read tool:
+1. Read the diagram. List rows, columns, connections and each label's longest line.
+2. Compute sizes, then positions. Write the block.
+3. Render and **look at every PNG** with the Read tool:
 
    ```bash
    python3 ${CLAUDE_SKILL_DIR}/scripts/render.py OUT_DIR docs/src/content/docs/page.md \
      --vars THEME_VARS.d2 --fonts docs/src/assets/fonts
    ```
 
-   It uses the `d2` binary if on PATH, else the `terrastruct/d2` Docker image, which bundles TALA. TALA is open source now, so no license is needed and renders have no watermark. `--vars` takes d2 text that the site prepends to every block (theme overrides). `--dark` renders the dark theme.
-4. Check the PNG for overlapping boxes, labels on top of nodes, bent edges that could be straight, cut-off text and uneven gaps. Fix the numbers and render again until clean.
+   Uses `d2` from PATH, else the `terrastruct/d2` Docker image (bundles TALA). TALA is open source: no license, no watermark. `--vars` takes d2 text the site prepends to every block (theme overrides). `--dark` renders the dark theme.
+4. Check for overlapping boxes, labels on nodes, bent edges that could be straight, cut-off text and uneven gaps. Fix the numbers and render again until clean.
 5. If the docs site builds diagrams (e.g. `npm run build` with astro-d2), run the build once at the end.
