@@ -25,7 +25,7 @@ Keep the meaning. Never drop a node, edge or label word unless it is a typo or a
    - 40 between boxes in a row with no edge between them.
    - 60 between rows an edge crosses. On a collision there (label on node, border or label, squeezed arrowhead, bent edge), raise that one gap by 20 and render again until clean.
    - A horizontal labeled edge gets at least label width + 40.
-6. Size boxes with the formulas below, then take the max per row (shared `height`) and per column (shared `width`).
+6. Boxes in the same row share one `height`. Boxes in the same column share one `width`. Size boxes with the formulas below, then take the max per row or column.
 7. Straight edges: connected nodes share a center line (x for vertical, y for horizontal edges). With equal widths that means equal `left`. A fan-out (one node to many) may bend, but center the single node over the fan.
 8. Place containers like nodes, by their outer size.
 
@@ -35,9 +35,9 @@ Measured for a 16px monospace font (JetBrains Mono). Re-measure for other fonts 
 
 - width = round up to 20 of `9.6 × longest line in chars + 44`
 - height = round up to 20 of `51 + 16 × lines`. Gives 80 for 1 line, 100 for 2 or 3, 120 for 4.
-- Shapes need more room, or TALA puts the label outside:
-  - cylinder: height 140 for 1 or 2 lines, 160 for 3
-  - diamond: width about 1.6 × the label box. 300×120 for 1 line, 300×140 for 2, 400×220 for 3
+- Shapes need more room than their label, or TALA puts the label outside the shape:
+  - cylinder: height 140 for 1 or 2 lines, 160 for 3 lines.
+  - diamond: width about 1.6 × the label box. 300×120 for 1 line, 300×140 for 2 lines, 400×220 for 3 lines.
 
 ### TALA quirks
 
