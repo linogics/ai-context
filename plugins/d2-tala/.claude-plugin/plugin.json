@@ -1,0 +1,10 @@
+{
+  "name": "d2-tala",
+  "version": "1.0.0",
+  "description": "Write and migrate d2 diagrams for the TALA layout engine with pinned grid positions, then render and inspect them.",
+  "author": { "name": "linogics" },
+  "homepage": "https://github.com/linogics/ai-context/tree/main/plugins/d2-tala",
+  "repository": "https://github.com/linogics/ai-context",
+  "license": "BSD-3-Clause",
+  "keywords": ["d2", "tala", "diagrams"]
+}

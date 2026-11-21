@@ -1,0 +1,14 @@
+{
+  "name": "linogics",
+  "owner": { "name": "linogics" },
+  "metadata": { "description": "Claude Code skills by linogics, one plugin per skill." },
+  "plugins": [
+    {
+      "name": "d2-tala",
+      "source": "./plugins/d2-tala",
+      "description": "Write and migrate d2 diagrams for the TALA layout engine with pinned grid positions, then render and inspect them.",
+      "category": "documentation",
+      "keywords": ["d2", "tala", "diagrams"]
+    }
+  ]
+}
