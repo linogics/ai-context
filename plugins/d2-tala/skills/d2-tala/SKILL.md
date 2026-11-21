@@ -1,6 +1,6 @@
 ---
 name: d2-tala
-description: Write or migrate d2 diagrams for the TALA layout engine with hand-pinned top/left positions on a 20px grid, equal box sizes, straight edges and labeled edges, then render and inspect them. Use when creating, editing, polishing or reviewing d2 diagrams (```d2 blocks in Markdown/MDX, .d2 files), when moving diagrams from elk/dagre to tala, or when the user says a diagram looks messy.
+description: Write, migrate or review d2 diagrams for TALA. Pins `top`/`left` on a 20px grid, equal boxes, straight labeled edges, then renders and checks. Use for `d2` blocks in Markdown/MDX, `.d2` files, `elk`/`dagre` to `tala` moves, or messy diagrams.
 ---
 
 # d2 diagrams on TALA
